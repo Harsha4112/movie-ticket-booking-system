@@ -7,7 +7,6 @@ movies = {
 }
 
 ticket_price = 150
-
 rows = 3
 cols = 4
 
@@ -31,18 +30,50 @@ def book_seat(row, col):
         seats[row][col] = "X"
         return True
 
-print("\n🎬 Welcome to Movie Ticket Booking\n")
+# simple terminal QR style pattern
+def generate_sample_qr(amount):
+    print("\n----- PAYMENT QR -----")
+    print("Scan to pay ₹", amount)
+    print()
+
+    qr_pattern = [
+        "████████████████████████",
+        "██ ▄▄▄▄▄ ██ ▀ ▄ ▄▄▄▄▄ ██",
+        "██ █   █ ██▄▀█ █   █ ██",
+        "██ █▄▄▄█ ██ ▄ █ █▄▄▄█ ██",
+        "██▄▄▄▄▄▄▄██▄█▄██▄▄▄▄▄██",
+        "██ ▀▀▄ ▄▄ ▄█ ▀▄ ▄▄▀▀ ██",
+        "██ █ ▄ ▄▀ ▀▄▀▄ ▀▄ ▄ ██",
+        "██ ▄▄▄▄▄ ██▀▄ ▀ █▄ ██",
+        "██ █   █ ██ ▄▀ ▄▄█ ██",
+        "██ █▄▄▄█ ██▀ ▄ ▄▀ ██",
+        "██▄▄▄▄▄▄▄██▄▄██▄▄██"
+    ]
+
+    for line in qr_pattern:
+        print(line)
+
+    print("\nUPI ID: movie@upi")
+    print("Amount: ₹", amount)
+    print("----------------------")
+
+print("\nWelcome to Movie Ticket Booking\n")
 
 # show movies
 print("Available Movies:")
 for m in movies:
     print(m, "-", movies[m]["name"])
 
-movie_choice = int(input("\nSelect movie number: "))
-
-if movie_choice not in movies:
-    print("Invalid movie")
-    exit()
+# movie selection
+while True:
+    try:
+        movie_choice = int(input("\nSelect movie number: "))
+        if movie_choice in movies:
+            break
+        else:
+            print("Invalid movie number. Try again.")
+    except:
+        print("Enter a valid number.")
 
 print("\nShow Timings:")
 shows = movies[movie_choice]["shows"]
@@ -50,31 +81,49 @@ shows = movies[movie_choice]["shows"]
 for i in range(len(shows)):
     print(i+1, "-", shows[i])
 
-show_choice = int(input("Select show number: "))
-
-if show_choice < 1 or show_choice > len(shows):
-    print("Invalid show")
-    exit()
+# show selection
+while True:
+    try:
+        show_choice = int(input("Select show number: "))
+        if 1 <= show_choice <= len(shows):
+            break
+        else:
+            print("Invalid show number.")
+    except:
+        print("Enter a valid number.")
 
 display_seats()
 
-tickets = int(input("\nHow many tickets: "))
+# ticket count
+while True:
+    try:
+        tickets = int(input("\nHow many tickets: "))
+        if tickets > 0:
+            break
+        else:
+            print("Enter a positive number.")
+    except:
+        print("Enter a valid number.")
 
 selected = []
 
 for i in range(tickets):
 
-    seat = input("Enter seat (Example A1): ")
+    seat = input("Enter seat (Example A1): ").upper()
 
-    row = ord(seat[0].upper()) - 65
+    if len(seat) != 2 or not seat[0].isalpha() or not seat[1].isdigit():
+        print("Invalid seat format.")
+        continue
+
+    row = ord(seat[0]) - 65
     col = int(seat[1]) - 1
 
     if row < 0 or row >= rows or col < 0 or col >= cols:
-        print("Invalid seat")
+        print("Seat does not exist.")
         continue
 
     if book_seat(row, col):
-        selected.append(seat.upper())
+        selected.append(seat)
 
 total = ticket_price * len(selected)
 
@@ -84,10 +133,17 @@ print("Show:", shows[show_choice-1])
 print("Seats:", selected)
 print("Total Price: ₹", total)
 
-pay = input("\nProceed to payment? (yes/no): ")
+pay = input("\nProceed to payment? (yes/no): ").lower()
 
-if pay.lower() == "yes":
-    print("\nPayment Successful!")
-    print("🎟️ Booking Confirmed")
+if pay == "yes":
+    generate_sample_qr(total)
+
+    confirm = input("\nAfter payment type 'done': ")
+
+    if confirm.lower() == "done":
+        print("\nPayment Successful!")
+        print("Booking Confirmed")
+    else:
+        print("\nPayment not confirmed.")
 else:
     print("\nBooking Cancelled")
